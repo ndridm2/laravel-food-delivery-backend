@@ -46,7 +46,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Invalid credentials',
-            ]);
+            ], 401);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
