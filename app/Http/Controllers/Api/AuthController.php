@@ -29,7 +29,7 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'User created successfully',
             'user' => $user,
-        ]);
+        ], 201);
     }
 
     // login
@@ -103,7 +103,7 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Restaurant register success',
             'data' => $user,
-        ]);
+        ], 201);
     }
 
     // driverRegister
