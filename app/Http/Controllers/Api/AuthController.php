@@ -137,7 +137,7 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Driver register success',
             'data' => $user,
-        ]);
+        ], 201);
     }
 
     // update latlong user
