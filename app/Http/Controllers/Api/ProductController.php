@@ -57,6 +57,7 @@ class ProductController extends Controller
             $image = $request->file('image');
             $image_name = time() . '.' . $image->getClientOriginalExtension();
             $image->move('uploads/products', $image_name);
+            
             $product->image = $image_name;
             $product->save();
         }
@@ -65,7 +66,7 @@ class ProductController extends Controller
             'status' => 'success',
             'message' => 'Product created',
             'data' => $product
-        ]);
+        ], 201);
     }
 
     // update
