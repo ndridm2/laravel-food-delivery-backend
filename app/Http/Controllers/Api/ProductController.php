@@ -11,7 +11,9 @@ class ProductController extends Controller
     // index
     public function index(Request $request)
     {
-        $products = Product::with('user')->where('user_id', $request->user()->id)->get();
+        $products = Product::with('user')->where('user_id', $request->user()->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         return response()->json([
             'status' => 'success',
@@ -21,9 +23,9 @@ class ProductController extends Controller
     }
 
     // get product by user id
-    public function getProductByUserId(Request $request)
+    public function getProductByUserId($userId)
     {
-        $products = Product::with('user')->where('user_id', $request->user_id)->get();
+        $products = Product::with('user')->where('user_id', $userId)->get();
 
         return response()->json([
             'status' => 'success',
@@ -57,7 +59,7 @@ class ProductController extends Controller
             $image = $request->file('image');
             $image_name = time() . '.' . $image->getClientOriginalExtension();
             $image->move('uploads/products', $image_name);
-            
+
             $product->image = $image_name;
             $product->save();
         }
