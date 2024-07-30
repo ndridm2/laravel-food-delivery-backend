@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use Faker\Provider\ar_EG\Payment;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -191,5 +192,80 @@ class OrderController extends Controller
             'message' => 'Order status updated driver',
             'data' => $order,
         ]);
+    }
+
+    // get payment method
+    public function getPaymentMethod()
+    {
+        $paymentMethods = [
+            'e_wallet' => [
+                'ID_OVO' => 'OVO',
+                'ID_DANA' => 'DANA',
+                'ID_LINKAJA' => 'linkAja',
+                'ID_SHOPEEPAY' => 'ShopeePay',
+            ]
+        ];
+
+        return response()->json([
+            'message' => 'Payment methods retrieved susccess',
+            'payment_methods' => $paymentMethods
+        ], 200);
+    }
+
+    public function purchaseOrderWithToken(Request $request, $orderId)
+    {
+        $validated = $request->validate([
+            'payment_method' => 'required|in:bank_transfer,e_wallet',
+            'payment_e_wallet' => 'nullable|required_if:payment_method,e_wallet|string',
+            'payment_method_id' => 'nullable|required_if:payment_method,e_wallet|string',
+        ]);
+
+        $order = Order::where('id', $orderId)->where('user_id', auth()->id())->first();
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        if ($validated['payment_method'] === 'e_wallet') {
+            $apiInstance = new \Xendit\PaymentRequest\PaymentRequestApi();
+            $idempotency_key = uniqid();
+            $for_user_id = auth()->id();
+
+            $payment_request_parameters = new \Xendit\PaymentRequest\PaymentRequestAuthParameters([
+                'reference_id' => 'order-' . $orderId,
+                'amount' => $order->total_bill,
+                'currency' => 'IDR',
+                'payment_method_id' => $validated['payment_method_id'],
+                'metadata' => [
+                    'order_id' => $orderId,
+                    'user_id' => $order->user->id,
+                ]
+            ]);
+
+            try {
+                $result = $apiInstance->createPaymentRequest($idempotency_key, $for_user_id, $payment_request_parameters);
+
+                // Payment::create([
+                //     'order_id' => $orderId,
+                //     'payment_type' => $validated['payment_method'],
+                //     'payment_provider' => $validated['payment_e_wallet'],
+                //     'amount' => $order->total_bill,
+                //     'status' => 'pending',
+                //     'xendit_id' => $result['id'],
+                // ]);
+
+                return response()->json(['message' => 'payment created success', 'order' => $order, 'payment' => $result], 200);
+            } catch (\Xendit\XenditSdkException $e) {
+                return response()->json(['message' => 'Failed to create payment', 'error' => $e->getMessage(), 'full_error' => $e->getFullError()], 50);
+            }
+        } else {
+            $order->status = 'purchase';
+            $order->payment_method = $validated['payment_method'];
+            $order->save();
+
+            // $this->sendNotificationToRestaurant($order->restaurant_id, 'Order Purchased', 'An order has been purchase')
+
+            return response()->json(['message' => 'Order purchased success', 'order' => $order], 200);
+        }
     }
 }

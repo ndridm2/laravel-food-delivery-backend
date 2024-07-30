@@ -25,6 +25,9 @@ Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'
 // update latlong
 Route::put('/user/update-latlong', [App\Http\Controllers\Api\AuthController::class, 'updateLatLong'])->middleware('auth:sanctum');
 
+// update fcm_id
+Route::put('/user/update-fcm', [App\Http\Controllers\Api\AuthController::class, 'updateFcmId'])->middleware('auth:sanctum');
+
 // get all restaurant
 Route::get('/restaurants', [App\Http\Controllers\Api\AuthController::class, 'getRestaurant']);
 
@@ -35,6 +38,9 @@ Route::get('/restaurant/{userId}/products', [App\Http\Controllers\Api\ProductCon
 
 //order
 Route::post('/order', [App\Http\Controllers\Api\OrderController::class, 'createOrder'])->middleware('auth:sanctum');
+
+// get payment method
+Route::get('/payment-methods', [App\Http\Controllers\Api\OrderController::class, 'getPaymentMethod'])->middleware('auth:sanctum');
 
 //get order by user id
 Route::get('/order/user', [App\Http\Controllers\Api\OrderController::class, 'orderHistory'])->middleware('auth:sanctum');
