@@ -40,13 +40,20 @@ Route::get('/restaurant/{userId}/products', [App\Http\Controllers\Api\ProductCon
 Route::post('/order', [App\Http\Controllers\Api\OrderController::class, 'createOrder'])->middleware('auth:sanctum');
 
 // get payment method
-Route::get('/payment-methods', [App\Http\Controllers\Api\OrderController::class, 'getPaymentMethod'])->middleware('auth:sanctum');
+Route::get('/payment-methods', [App\Http\Controllers\Api\OrderController::class, 'getPaymentMethods'])->middleware('auth:sanctum');
+
+// puchase order
+Route::post('/purchase/{orderId}', [App\Http\Controllers\Api\OrderController::class, 'purchaseOrder'])->middleware('auth:sanctum');
+
+// xendit-callback
+Route::post('/xendit-callback', [App\Http\Controllers\Api\OrderController::class, 'webhook']);
+
 
 //get order by user id
 Route::get('/order/user', [App\Http\Controllers\Api\OrderController::class, 'orderHistory'])->middleware('auth:sanctum');
 
-//get order by restaurant
-Route::get('/order/restaurant', [App\Http\Controllers\Api\OrderController::class, 'getOrdersByStatus'])->middleware('auth:sanctum');
+//get order by restaurant id
+// Route::get('/order/restaurant', [App\Http\Controllers\Api\OrderController::class, 'getOrdersByStatus'])->middleware('auth:sanctum');
 
 //update order status by restaurant by id
 Route::put('/order/restaurant/update-status/{id}', [App\Http\Controllers\Api\OrderController::class, 'updateOrderStatus'])->middleware('auth:sanctum');
@@ -57,5 +64,14 @@ Route::get('/order/driver', [App\Http\Controllers\Api\OrderController::class, 'g
 //update order status by driver by id
 Route::put('/order/driver/update-status/{id}', [App\Http\Controllers\Api\OrderController::class, 'updateOrderStatusDriver'])->middleware('auth:sanctum');
 
-//update purchase status by id
+//update purchase status
 Route::put('/order/user/update-status/{id}', [App\Http\Controllers\Api\OrderController::class, 'updatePurchaseStatus'])->middleware('auth:sanctum');
+
+//get order by restaurant id
+Route::get('/order/restaurant', [App\Http\Controllers\Api\OrderController::class, 'getOrdersByRestaurantId'])->middleware('auth:sanctum');
+
+//get order by status waiting pickup
+Route::get('/order/driver/waiting-pickup', [App\Http\Controllers\Api\OrderController::class, 'getOrdersWaitingPickup'])->middleware('auth:sanctum');
+
+//get order by status on the way
+Route::put('/order/driver/update-status/{id}', [App\Http\Controllers\Api\OrderController::class, 'updateOrderStatusDriver'])->middleware('auth:sanctum');

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->integer('amount');
             // status
             $table->string('status')->default('pending');
+            //xendit id
+            $table->string('xendit_id')->nullable();
             $table->timestamps();
         });
     }
